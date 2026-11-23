@@ -32,7 +32,20 @@ const withHistory = await ai.models.generateContent({
     contents: history,
     config: { systemInstruction: SYSTEM_INSTRUCTION },
 });
+
+history.push({ role: "model", parts: [{ text: withHistory.text }] });
+history.push({ role: "user", parts: [{ text: "When will it arrive?" }] });
+
+const turn3 = await ai.models.generateContent({
+    model: MODEL,
+    contents: history,
+    config: { systemInstruction: SYSTEM_INSTRUCTION },
+});
+
 console.log("B) With history:", withHistory.text);
 
 console.log("A input tokens:", withoutHistory.usageMetadata?.promptTokenCount);
 console.log("B input tokens:", withHistory.usageMetadata?.promptTokenCount);
+
+console.log("C) Turn 3:", turn3.text);
+console.log("C input tokens:", turn3.usageMetadata?.promptTokenCount);
