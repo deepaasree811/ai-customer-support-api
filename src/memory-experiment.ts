@@ -12,7 +12,9 @@ const MODEL = "gemini-3.6-flash";
 
 const SYSTEM_INSTRUCTION =
     "You are a friendly support agent for StyleKart, a fashion store. " +
-    "Address the customer by name if they gave it. Reply in one sentence.";
+    "Address the customer by name if they gave it. Reply in one sentence." +
+    "Returns are accepted within 7 days of delivery. Items must be unworn with tags." +
+    "If you are not sure about what customer is asking or not covered by the above rules say that you will connect them to a human agent.";
 
 const withoutHistory = await ai.models.generateContent({
     model: MODEL,
@@ -42,6 +44,15 @@ const turn3 = await ai.models.generateContent({
     config: { systemInstruction: SYSTEM_INSTRUCTION },
 });
 
+history.push({ role: "model", parts: [{ text: turn3.text }] });
+history.push({ role: "user", parts: [{ text: "Do you ship to Dubai?" }] })
+
+const turn4 = await ai.models.generateContent({
+    model: MODEL,
+    contents: history,
+    config: { systemInstruction: SYSTEM_INSTRUCTION }
+});
+
 console.log("B) With history:", withHistory.text);
 
 console.log("A input tokens:", withoutHistory.usageMetadata?.promptTokenCount);
@@ -49,3 +60,6 @@ console.log("B input tokens:", withHistory.usageMetadata?.promptTokenCount);
 
 console.log("C) Turn 3:", turn3.text);
 console.log("C input tokens:", turn3.usageMetadata?.promptTokenCount);
+
+console.log("D) Turn 4:", turn4.text);
+console.log("D input tokens:", turn4.usageMetadata?.promptTokenCount);
