@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, ThinkingLevel, type Content } from "@google/genai";
 
 process.loadEnvFile();
@@ -20,6 +21,9 @@ const INPUT_PRICE_PER_MILLION = 1;
 const OUTPUT_PRICE_PER_MILLION = 4;
 
 const conversation: Content[] = [];
+
+// Running total across all turns
+let totalCost = 0;
 
 async function chat(history: Content[], userMessage: string): Promise<string> {
     // a. push the user message onto history
@@ -47,11 +51,15 @@ async function chat(history: Content[], userMessage: string): Promise<string> {
     const outputCost = ((outputTokens + thinkingTokens) / 1_000_000) * OUTPUT_PRICE_PER_MILLION;
     const cost = inputCost + outputCost;
 
+    // Update running total
+    totalCost += cost;
+
     // f. log the tokens and cost
     console.log(
         `  [tokens] input: ${inputTokens}, output: ${outputTokens}, thinking: ${thinkingTokens}, history: ${history.length} messages`,
     );
-    console.log(`  [cost] $${cost.toFixed(6)}`);
+    console.log(`  [cost] This turn: $${cost.toFixed(6)}`);
+    console.log(`  [cost] Running total: $${totalCost.toFixed(6)}`);
 
     // g. return the reply text
     return reply;
@@ -65,3 +73,6 @@ console.log("Bot:", reply2);
 
 const reply3 = await chat(conversation, "What's my name?");
 console.log("Bot:", reply3);
+
+// Print final conversation cost
+console.log("\nTotal conversation cost: $" + totalCost.toFixed(9));
